@@ -1,0 +1,57 @@
+﻿@using BlazorApp1.Data
+@using Microsoft.EntityFrameworkCore
+@page "/"
+@inject IDbContextFactory<DataContext> GameContextFactory
+
+<PageTitle>Home</PageTitle>
+
+    @if (@Games is not null && @Games.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered table-light">
+                <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Developer</th>
+                    <th scope="col">Release Year</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var game in @Games)
+                {
+                    <tr>
+                        <td>@game.Name</td>
+                        <td>@game.Developer</td>
+                        <td>@game.ReleaseYear</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+@code
+{
+    private DataContext? _context;
+    public List<Game>? Games { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ShowGames();
+    }
+
+    public async Task ShowGames()
+    {
+        _context ??= await GameContextFactory.CreateDbContextAsync();
+
+        if (_context is not null)
+        {
+            Games = await _context.Games.ToListAsync();
+        }
+
+        if (_context is not null)
+        {
+            await _context.DisposeAsync();
+        }
+    }
+}
